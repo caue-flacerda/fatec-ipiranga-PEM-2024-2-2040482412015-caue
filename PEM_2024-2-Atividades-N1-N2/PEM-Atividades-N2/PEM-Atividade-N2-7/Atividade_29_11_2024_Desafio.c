@@ -1,3 +1,11 @@
+/*----------------------------------------------------------------------------*
+* Disciplina: Programaçao Estruturada e Modular                               *
+*          Prof. Carlos Veríssimo                                             *
+*-----------------------------------------------------------------------------*
+* Objetivo do Programa: Refatorando o Código                                  *
+* Data - 29/11/2024                                                           * 
+* Autor: Cauê Ferreira Lacerda                                                *
+*----------------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,21 +57,23 @@ double lerDoublePositivo() {
     return num;
 }
 
-void lerString(char *str, int tamanho) {
-    getchar();  // Limpa o buffer do '\n' que pode ficar do scanf anterior
-    fgets(str, tamanho, stdin);
-    str[strcspn(str, "\n")] = '\0';  // Remove o '\n' da string
-}
-
-// Função para verificar se a string contém apenas letras e espaços
-int stringValida(char *str) {
-    // Verifica se a string contém apenas letras e espaços
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (!isalpha(str[i]) && !isspace(str[i])) {
-            return 0;  // Se encontrar um caractere não válido
+// Função de leitura de string segura (sem números)
+void lerStringSegura(char *destino, int tamanho, const char *mensagem) {
+    int valido;
+    do {
+        printf("%s: ", mensagem);
+        fgets(destino, tamanho, stdin);
+        destino[strcspn(destino, "\n")] = '\0'; // Remove o '\n' da string
+        
+        valido = 1;
+        for (int i = 0; destino[i] != '\0'; i++) {
+            if (isdigit(destino[i])) {
+                valido = 0; 
+                printf("Erro! O nome não pode conter numero. Tente novamente.\n");
+                break;
+            }
         }
-    }
-    return 1;  // Se a string for válida
+    } while (!valido);
 }
 
 void inserirProduto(Produto *produtos, int *cont);
@@ -141,23 +151,9 @@ void inserirProduto(Produto *produtos, int *cont) {
         }
 
         novoProduto.id = idProduto;
-        printf("Informe o nome do produto: ");
-        lerString(novoProduto.nome, NOME_MAX);
+        lerStringSegura(novoProduto.nome, NOME_MAX, "Nome do produto");
 
-        // Valida que o nome contém apenas letras e espaços
-        while (!stringValida(novoProduto.nome)) {
-            printf("Nome inválido! O nome deve conter apenas letras e espaços. Tente novamente: ");
-            lerString(novoProduto.nome, NOME_MAX);
-        }
-
-        printf("Informe a descricao do produto: ");
-        lerString(novoProduto.descricao, DESCRICAO_MAX);
-
-        // Valida que a descrição contém apenas letras e espaços
-        while (!stringValida(novoProduto.descricao)) {
-            printf("Descricao inválida! A descricao deve conter apenas letras e espaços. Tente novamente: ");
-            lerString(novoProduto.descricao, DESCRICAO_MAX);
-        }
+        lerStringSegura(novoProduto.descricao, DESCRICAO_MAX, "Descricao do produto");
 
         printf("Informe o preco unitario: ");
         novoProduto.precoUnitario = lerDoublePositivo();
@@ -220,23 +216,10 @@ void alterarProduto(Produto *produtos, int cont) {
 
     for (int i = 0; i < cont; i++) {
         if (produtos[i].id == idProduto) {
-            printf("Novo nome do produto: ");
-            lerString(produtos[i].nome, NOME_MAX);
+            lerStringSegura(produtos[i].nome, NOME_MAX, "Novo nome");
 
-            // Valida que o nome contém apenas letras e espaços
-            while (!stringValida(produtos[i].nome)) {
-                printf("Nome inválido! O nome deve conter apenas letras e espaços. Tente novamente: ");
-                lerString(produtos[i].nome, NOME_MAX);
-            }
-
-            printf("Nova descricao do produto: ");
-            lerString(produtos[i].descricao, DESCRICAO_MAX);
-
-            // Valida que a descrição contém apenas letras e espaços
-            while (!stringValida(produtos[i].descricao)) {
-                printf("Descricao inválida! A descrição deve conter apenas letras e espaços. Tente novamente: ");
-                lerString(produtos[i].descricao, DESCRICAO_MAX);
-            }
+            
+            lerStringSegura(produtos[i].descricao, DESCRICAO_MAX, "Nova descricao");
 
             printf("Novo preco unitario: ");
             produtos[i].precoUnitario = lerDoublePositivo();
@@ -320,5 +303,3 @@ void aplicarDesconto(Produto *produtos, int cont) {
     }
     printf("Produto inexistente.\n");
 }
-
-   
